@@ -1,4 +1,8 @@
 VMod
 ====
 
-A cross-platform voice changer
+A cross-platform voice changer.
+
+## Status
+
+Early research.
