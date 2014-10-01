@@ -12,4 +12,4 @@ A Java CLI program that captures the audio from the microphone.
 1. Run it (easy).
 2. It should capture audio automatically, check the console for the status messages.
 3. Press enter to stop capturing.
-4. Believe that it's working, as there's no playback ATM :-)
+4. It should play back automatically the recorded message.
