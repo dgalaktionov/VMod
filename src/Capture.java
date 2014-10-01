@@ -29,10 +29,8 @@ class Capture implements Runnable {
 
 
 	private void shutDown(String message) {
-		if (thread != null) {
-			thread = null;
-			System.err.println(message);
-		}
+		thread = null;
+		System.err.println(message);
 	}
 
 
