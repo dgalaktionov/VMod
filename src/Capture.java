@@ -179,12 +179,61 @@ class Capture implements Runnable {
 		System.out.println("Stopped playing back.");
 
 		line = null;
-		shutDown(null);
+	}
+
+
+	private AudioInputStream speedUp(AudioInputStream input) {
+		// make sure we have something to play
+		if (input == null) {
+			shutDown("No loaded audio to speed up");
+			return null;
+		}
+
+		// reset to the beginnning of the stream
+		try {
+			input.reset();
+		} catch (Exception e) {
+			shutDown("Unable to reset the stream\n" + e);
+			return null;
+		}
+
+		int bufferSize = input.getFormat().getFrameSize();
+		byte[] inputWindow = new byte[bufferSize];
+		byte[] outputWindow = new byte[bufferSize / 2];
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		int numBytesRead = 0;
+
+		System.out.println("Applying filter...");
+		try {
+			while ((numBytesRead = input.read(inputWindow, 0, bufferSize)) != -1) {
+				for (int i = 0; i < numBytesRead; i += 4) {
+					outputWindow[i / 2] = inputWindow[i];
+					outputWindow[(i / 2) + 1] = inputWindow[i + 1];
+				}
+
+				out.write(outputWindow, 0, numBytesRead / 2);
+			}
+		} catch (IOException e) {
+			shutDown("Error during speed up filter.");
+		}
+		System.out.println("Done");
+
+		byte audioBytes[] = out.toByteArray();
+		ByteArrayInputStream bais = new ByteArrayInputStream(audioBytes);
+		AudioInputStream filteredInputStream = new AudioInputStream(bais, input.getFormat(),
+				audioBytes.length / bufferSize);
+
+		System.out.println("Original recording length: " + input.getFrameLength()
+				/ input.getFormat().getFrameRate());
+		System.out.println("Filtered recording length: " + filteredInputStream.getFrameLength()
+				/ filteredInputStream.getFormat().getFrameRate());
+
+		return filteredInputStream;
 	}
 
 
 	@Override
 	public void run() {
-		playback(capture());
+		playback(speedUp(capture()));
 	}
 }
